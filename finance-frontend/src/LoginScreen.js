@@ -12,6 +12,7 @@ setErrMsg(null)
 const response = await axios.post(URL_AUTH,{...formData});// shoot apiauthen -->urlauth,formData **formData-->requrement of strapi
 console.log(response)
 const token = response.data.jwt;
+sessionStorage.setItem('token', token)
 axios.defaults.headers.common = { 'Authorization': `bearer ${token}` } 
 props.onLoginSuccess();
     } catch(err) {

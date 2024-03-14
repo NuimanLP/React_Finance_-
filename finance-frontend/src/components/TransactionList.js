@@ -1,13 +1,13 @@
 import { Space, Table, Tag, Button } from 'antd';
 import moment from 'moment';
 
-
 export default function TransactionList(props) {
   const columns = [
     {
       key: 'id',
       title: 'Date-Time',
       dataIndex: 'action_datetime',
+
     },
     {
       key: 'id',
@@ -30,10 +30,11 @@ export default function TransactionList(props) {
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <Button onClick={() => props.onTransactionDeleted(record)}>Edit</Button>
+          <Button onClick={() => props.onTransactionEdit(record)}>Edit</Button>
           <Button onClick={() => props.onTransactionDeleted(record.id)}>Delete</Button>
         </Space>
       ),
+
     },
   ];
 

@@ -1,119 +1,106 @@
-import logo from './logo.svg';
-import './App.css';
-import moment from 'moment';
-import TransactionList from './components/TransactionList';
-import AddItem from './components/AddItem';
-import { useState, useEffect } from 'react';
-import { Divider, Typography } from 'antd';
-
-import { Spin } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Divider, Typography, Spin } from 'antd';
 import axios from 'axios';
+import moment from 'moment';
+import AddItem from './components/AddItem';
+import TransactionList from './components/TransactionList';
+import EditItem from './components/EditItem';
 
-axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:1337"
-const URL_TXACTIONS = '/api/txactions'
+const URL_TXACTIONS = '/api/txactions';
 
 function FinanceScreen() {
-  const [isLoading, setIsLoading] = useState(false) //state loading try TRUE
-  const [transactionData, setTransactionData] = useState([])
-  const [currentAmount, setCurrentAmount] = useState(0)
-  const addItem = async (item) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [transactionData, setTransactionData] = useState([]);
+  const [currentAmount, setCurrentAmount] = useState(0);
+  const [editingItem, setEditingItem] = useState(null); // New state for managing the item to edit
+
+  
+  const fetchItems = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true)
-      console.log(item.amount)
+      const response = await axios.get(URL_TXACTIONS);
+      setTransactionData(response.data.data.map(d => ({
+        id: d.id,
+        key: d.id,
+        ...d.attributes
+      })));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addItem = async (item) => {
+    setIsLoading(true);
+    try {
       const params = {
         action_datetime: moment(),
         amount: item.amount,
         type: item.type,
         note: item.note,
-      }
-      const response = await axios.post(URL_TXACTIONS, { data: params })
-      const { id, attributes } = response.data.data
-      console.log(id, attributes.note)
-
-      setTransactionData([...transactionData,//spread operation 
-      {
-        id: id,
-        key: id,
-        action_datetime: attributes.action_datetime,
-        type: attributes.type,
-        note: attributes.note,
-        amount: attributes.amount,
-
-      }
-      ])
-
+      };
+      await axios.post(URL_TXACTIONS, { data: params });
+      fetchItems();
     } catch (err) {
-      console.log(err)
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
-  const fetchItems = async () => {
-    try {
-      setIsLoading(true)
-      const response = await axios.get(URL_TXACTIONS)
-
-      //................ Add Code Here ...................
-
-      const newData = response.data.data.map(d => {
-        return {
-          id: d.id,
-          key: d.id,
-          action_datetime: d.attributes.action_datetime,
-          type: d.attributes.type,
-          note: d.attributes.note,
-          amount: d.attributes.amount,
-
-        }
-      })
-
-
-
-      setTransactionData(response.data.data.map(d => ({
-        id: d.id,
-        key: d.id,
-        ...d.attributes
-      })))
-    } catch (err) {
-      console.log(err)
-    } finally { setIsLoading(false) }
-  }
+  };
 
   const deleteItem = async (itemId) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true)
-      await axios.delete('${URL_TXACTIONS}/${itemId}')
-      fetchItems()
+      await axios.delete(`${URL_TXACTIONS}/${itemId}`);
+      fetchItems();
     } catch (err) {
-      console.log(err)
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-  useEffect(() => {
-    fetchItems()
-  }, [])
-  useEffect(() => {
-    setCurrentAmount(transactionData.reduce(
-      (sum, d) => sum = d.type === "income" ? sum + d.amount : sum - d.amount
-      , 0))
-  }
-    , [transactionData])
+  };
 
+  const updateItem = async (item) => {
+    setIsLoading(true);
+    try {
+      console.log('updateItem', item)
+      await axios.put(`${URL_TXACTIONS}/${item.id}`, { data: item });
+      setEditingItem(null); // Close modal after updating
+      fetchItems();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  useEffect(() => {
+    setCurrentAmount(transactionData.reduce((sum, d) => d.type === "income" ? sum + d.amount : sum - d.amount, 0));
+  }, [transactionData]);
 
   return (
     <div className="App">
       <header className="App-header">
         <Spin spinning={isLoading}>
-          <Typography.Title>
-            จํานวนเงินปัจจุบัน {currentAmount} บาท
-          </Typography.Title>
-
+          <Typography.Title>จำนวนเงินปัจจุบัน {currentAmount} บาท</Typography.Title>
           <AddItem onItemAdded={addItem} />
           <Divider>บันทึกรายรับ-รายจ่าย</Divider>
-          <TransactionList data={transactionData}
-            onTransactionDeleted={deleteItem} />
+          <TransactionList 
+            data={transactionData} 
+            onTransactionDeleted={deleteItem}
+            onTransactionEdit={setEditingItem} // Pass function to set item for editing
+          />
+          <EditItem 
+            isOpen={!!editingItem} 
+            item={editingItem} 
+            onItemEdited={updateItem} 
+            onCancel={() => setEditingItem(null)}
+          />
         </Spin>
       </header>
     </div>
