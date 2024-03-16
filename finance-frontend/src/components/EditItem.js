@@ -1,20 +1,22 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Select, Input, InputNumber} from 'antd';
 
-const EditItem = ({ isOpen, item, onItemEdited, onCancel }) => {
+const EditItem = ({ isOpen, itemdata, ItemEdited, onCancel }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (isOpen) {
-      console.log("Editing item:", item);
-      form.setFieldsValue(item);
+      console.log("Editing itemdata:", itemdata);
+      form.setFieldsValue(itemdata);
     }
-  }, [item]);
+  }, [itemdata]);
 
   const handleFormSubmit = () => {
     form.validateFields().then((formData) => {
-      const updatedItemWithID = { ...formData, id: item.id };
-      onItemEdited(updatedItemWithID);
+      console.log('EditItem form data:', formData);
+      const updatedItemWithID = { ...formData, id: itemdata.id };
+      ItemEdited(updatedItemWithID);
+      console.log('updatedItemWithID:', updatedItemWithID);
     }).catch((error) => {
       console.error('Validation Failed:', error);
     });

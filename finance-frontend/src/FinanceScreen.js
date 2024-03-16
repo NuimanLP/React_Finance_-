@@ -31,14 +31,14 @@ function FinanceScreen() {
     }
   };
 
-  const addItem = async (item) => {
+  const addItem = async (itemdata) => {
     setIsLoading(true);
     try {
       const params = {
         action_datetime: moment(),
-        amount: item.amount,
-        type: item.type,
-        note: item.note,
+        amount: itemdata.amount,
+        type: itemdata.type,
+        note: itemdata.note,
       };
       await axios.post(URL_TXACTIONS, { data: params });
       fetchItems();
@@ -62,11 +62,11 @@ function FinanceScreen() {
   };
 
   /*Add-on พี่เต้ย*/
-  const updateItem = async (item) => {
+  const updateItem = async (itemdata) => {
     setIsLoading(true);
     try {
-      console.log('updateItem', item)
-      await axios.put(`${URL_TXACTIONS}/${item.id}`, { data: item });
+      console.log('updateItem', itemdata)
+      await axios.put(`${URL_TXACTIONS}/${itemdata.id}`, { data: itemdata });
       setEditingItem(null); // Close modal after updating
       fetchItems();
     } catch (err) {
@@ -101,8 +101,8 @@ function FinanceScreen() {
           />
           <EditItem
             isOpen={editingItem}
-            item={editingItem}
-            onItemEdited={updateItem}
+            itemdata={editingItem}
+            ItemEdited={updateItem}
             onCancel={() => setEditingItem(null)}
           />
         </Spin>
