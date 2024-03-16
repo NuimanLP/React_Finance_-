@@ -12,7 +12,7 @@ function FinanceScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [transactionData, setTransactionData] = useState([]);
   const [currentAmount, setCurrentAmount] = useState(0);
-  const [editingItem, setEditingItem] = useState(null); // New state for managing the item to edit
+  const [editingItem, setEditingItem] = useState(null); // New state
 
   
   const fetchItems = async () => {
@@ -61,6 +61,7 @@ function FinanceScreen() {
     }
   };
 
+  /*Add-on พี่เต้ย*/
   const updateItem = async (item) => {
     setIsLoading(true);
     try {
@@ -76,12 +77,12 @@ function FinanceScreen() {
   };
 
   useEffect(() => {
-    fetchItems();
-  }, []);
-
-  useEffect(() => {
     setCurrentAmount(transactionData.reduce((sum, d) => d.type === "income" ? sum + d.amount : sum - d.amount, 0));
   }, [transactionData]);
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
 
   return (
     <div className="App">
@@ -90,15 +91,18 @@ function FinanceScreen() {
           <Typography.Title>จำนวนเงินปัจจุบัน {currentAmount} บาท</Typography.Title>
           <AddItem onItemAdded={addItem} />
           <Divider>บันทึกรายรับ-รายจ่าย</Divider>
-          <TransactionList 
-            data={transactionData} 
-            onTransactionDeleted={deleteItem}
-            onTransactionEdit={setEditingItem} // Pass function to set item for editing
+          <TransactionList
+            data={transactionData}// fetch มาจาก API
+            // { id: 1, type: 'รายรับ', amount: 50, note: 'เงินเดือน' },
+            // { id: 2, type: 'รายจ่าย', amount: 20, note: 'ค่าอาหารกลางวัน' }
+            onTransactionDeleted={deleteItem} //<button Onlcik deleteItem{transactionData.id}>
+            /// Add-on พี่เต้ย
+            onTransactionEdit={setEditingItem} //<button setEditingItem{transactionData}>
           />
-          <EditItem 
-            isOpen={!!editingItem} 
-            item={editingItem} 
-            onItemEdited={updateItem} 
+          <EditItem
+            isOpen={editingItem}
+            item={editingItem}
+            onItemEdited={updateItem}
             onCancel={() => setEditingItem(null)}
           />
         </Spin>

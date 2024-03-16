@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Select, Input, InputNumber, Button } from 'antd';
+import { Modal, Form, Select, Input, InputNumber} from 'antd';
 
 const EditItem = ({ isOpen, item, onItemEdited, onCancel }) => {
   const [form] = Form.useForm();
@@ -9,7 +9,7 @@ const EditItem = ({ isOpen, item, onItemEdited, onCancel }) => {
       console.log("Editing item:", item);
       form.setFieldsValue(item);
     }
-  }, [isOpen, item, form]);
+  }, [item]);
 
   const handleFormSubmit = () => {
     form.validateFields().then((formData) => {
@@ -23,18 +23,18 @@ const EditItem = ({ isOpen, item, onItemEdited, onCancel }) => {
 
   return (
     <Modal
-      title="Edit Item"
+      title="Edit Transaction"
       visible={isOpen}
       onOk={handleFormSubmit}
       onCancel={onCancel}
       okText="Submit"
       cancelText="Cancel"
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="horizontal">
         <Form.Item
           name="type"
           label="ชนิด"
-          rules={[{ required: true, message: 'Please select a type!' }]}
+          rules={[{ required: true}]}
         >
           <Select
             allowClear
@@ -53,14 +53,14 @@ const EditItem = ({ isOpen, item, onItemEdited, onCancel }) => {
         <Form.Item
           name="amount"
           label="จำนวนเงิน"
-          rules={[{ required: true, message: 'Please input the amount!' }]}
+          rules={[{ required: true, message: 'เท่าไหร่ ไอหนุ่ม!' }]}
         >
           <InputNumber style={{ width: '100%' }} placeholder="จำนวนเงิน" />
         </Form.Item>
         <Form.Item
           name="note"
           label="หมายเหตุ"
-          rules={[{ required: true, message: 'Please input a note!' }]}
+          rules={[{ required: true, message: 'โปรดใส่หมายเหตุด้วยฮะ!' }]}
         >
           <Input placeholder="Note" />
         </Form.Item>
